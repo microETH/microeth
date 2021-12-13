@@ -161,8 +161,42 @@ describe(contractName, () => {
             // Check METH balance
             expect(startMETH.gt("0")).to.be.true;
             expect(newMETH.eq("0")).to.be.true;
+        });
 
-            return true;
+        it("Should validate that total supply matches minted tokens", async () => {
+            let expectedSupply = 0;
+            let supply = 0;
+
+            // Zero supply
+            supply = (await contract.totalSupply()).toNumber();
+            expect(supply).to.equal(0);
+
+            // Deposit
+            let methValues = [ 1, 2, 99, 100 ];
+            for (let i = 0; i < methValues.length; i++) {
+                let meth = methValues[i];
+                let tx = (await contract.deposit({value: KSink.methToWei(meth)}));
+                let txResult = (await KSink.waitWriteMethod(tx));
+                expectedSupply += meth;
+
+                supply = (await contract.totalSupply()).toNumber();
+                expect(supply).to.equal(expectedSupply);
+            }
+
+            // Withdraw
+            while (expectedSupply > 0)
+            {
+                let meth = Math.round(expectedSupply / 2);
+                await KSink.waitWriteMethod(contract.withdraw(meth));
+                expectedSupply -= meth;
+
+                supply = (await contract.totalSupply()).toNumber();
+                expect(supply).to.equal(expectedSupply);
+            }
+
+            // Zero supply
+            supply = (await contract.totalSupply()).toNumber();
+            expect(supply).to.equal(0);
         });
 
     });
