@@ -372,6 +372,62 @@ describe(contractName, () => {
             await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
         });
 
+        it("Should allow a spending allowance on another account", async () => {
+            let eth = ethers.utils.parseEther("0.1");
+            let meth = BigNumber.from("100000");
+
+            let balance1 = BigNumber.from("0");
+            let balance2 = BigNumber.from("0");
+
+            let allowance = BigNumber.from("0");
+
+            // Check initial balances
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq("0")).to.be.true;
+
+            balance2 = (await wallets[2].contract.balanceOf(wallets[2].address));
+            expect(balance2.eq("0")).to.be.true;
+
+            // Deposit to wallet 1
+            let tx = (await wallets[1].contract.deposit({value: eth}));
+            let txResult = (await KSink.waitWriteMethod(tx));
+
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq(meth)).to.be.true;
+
+            // Try to spend from a disallowed peer account
+            await expect(
+                wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, BigNumber.from("1"))
+            ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+
+            // Ask peer to check allowance
+            allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
+            expect(allowance.eq("0")).to.be.true;
+
+            // Allow peer to spend up to 1 token
+            await wallets[1].contract.approve(wallets[2].address, BigNumber.from("1"));
+
+            // Ask peer to check allowance
+            allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
+            expect(allowance.eq("1")).to.be.true;
+
+            // Ask peer to transfer tokens
+            wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, BigNumber.from("1"))
+
+            allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
+            expect(allowance.eq("0")).to.be.true;
+
+            // Check token balances
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq(meth.sub("1"))).to.be.true;
+
+            balance2 = (await wallets[2].contract.balanceOf(wallets[2].address));
+            expect(balance2.eq("1")).to.be.true;
+
+            // Withdraw remaining
+            await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
+            await KSink.waitWriteMethod(wallets[2].contract.withdraw(balance2));
+        });
 
     });
 
