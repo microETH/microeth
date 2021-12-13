@@ -56,7 +56,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
         // Refund remainder
         if (remainder > 0) {
-            (bool sent, bytes memory data) = msg.sender.call{value: remainder}("");
+            (bool sent,) = msg.sender.call{value: remainder}("");
             if (!sent) {
                 revert("Failed to send refund fraction.");
             }
@@ -80,7 +80,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
         // Send ether
         uint256 value = ONE_METH * meth;
-        (bool sent, bytes memory data) = msg.sender.call{value: value}("");
+        (bool sent,) = msg.sender.call{value: value}("");
         if (!sent) {
             revert("Failed to withdraw.");
         }
