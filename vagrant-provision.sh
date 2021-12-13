@@ -1,6 +1,6 @@
 #/bin/bash
 
-LINE_PREFIX="m-eth"
+LINE_PREFIX="microeth"
 cd /root
 
 # Sanity check
@@ -37,7 +37,7 @@ npm install -g solhint
 echo "$LINE_PREFIX: Installing solc..."
 
 # From: https://github.com/ethereum/solidity/releases
-SOLC_VERSION=0.8.10
+SOLC_VERSION=0.8.9
 pushd /usr/local/bin
 wget -O solc-$SOLC_VERSION "https://github.com/ethereum/solidity/releases/download/v$SOLC_VERSION/solc-static-linux"
 chmod +x solc-$SOLC_VERSION
@@ -57,6 +57,18 @@ echo "$LINE_PREFIX: Adding hardhat alias..."
 echo '' >> /root/.bashrc
 echo 'alias hardhat="npx hardhat"' >> /root/.bashrc
 echo '' >> /root/.bashrc
+
+# Initialize project
+echo "$LINE_PREFIX: Initializing project..."
+
+cd /root/project
+
+if [ -f "package.json" ]; then
+	# Project already exists, install packages
+	echo "Project already exists, installing modules..."
+	rm -rf node_modules
+	npm install
+fi
 
 # Finalize install
 echo "$LINE_PREFIX: finalizing installation..."
