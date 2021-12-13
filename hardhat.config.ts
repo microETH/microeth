@@ -46,11 +46,14 @@ module.exports = {
     },
     hardhat: {
       // See its defaults
-    },
-    ropsten: {
-      url: process.env.ROPSTEN_URL,
-      chainId: 3,
-      accounts: [ process.env.ROPSTEN_PK ]
     }
   }
-};
+}
+
+if (process.env.hasOwnProperty('ROPSTEN_URL')) {
+  module.exports.networks.ropsten = {
+    url: process.env.ROPSTEN_URL,
+    chainId: 3,
+    accounts: [ (process.env.hasOwnProperty('ROPSTEN_PK') ? process.env.ROPSTEN_PK : '') ]
+  }
+}
