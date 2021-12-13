@@ -22,3 +22,7 @@ export const waitWriteMethod = async function(tx: Promise<any>): Promise<WriteRe
 export const parseMETH = (meth: string): BigNumber => {
     return ethers.utils.parseUnits(meth, 12);
 }
+
+export const methToWei = (meth: BigNumberish): BigNumber => {
+    return BigNumber.from(meth).mul(1000000000000);
+}

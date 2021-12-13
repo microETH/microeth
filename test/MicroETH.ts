@@ -70,7 +70,6 @@ describe(contractName, function () {
         let startETH = (await wallet.getBalance());
         let startMETH = (await contract.balanceOf(walletAddress));
 
-
         let txRequest = {
             to: contract.address,
             value: eth
@@ -95,6 +94,33 @@ describe(contractName, function () {
         temp = temp.sub(startMETH);
 
         expect(temp.eq(meth)).to.be.true;
+    });
+
+    it("Should withdraw all METH tokens and receive ether", async function () {
+
+        let startETH = (await wallet.getBalance());
+        let startMETH = (await contract.balanceOf(walletAddress));
+
+        let tx = (await contract.withdraw(startMETH));
+        let txResult = (await KSink.waitWriteMethod(tx));
+
+        let newETH = (await wallet.getBalance());
+        let newMETH = (await contract.balanceOf(walletAddress));
+
+        let temp = null;
+
+        // Check wallet balance
+        temp = BigNumber.from(startETH);
+        temp = temp.sub(txResult.gasTotal);
+        temp = temp.add(KSink.methToWei(startMETH));
+
+        expect(temp.eq(newETH)).to.be.true;
+
+        // Check METH balance
+        expect(startMETH.gt("0")).to.be.true;
+        expect(newMETH.eq("0")).to.be.true;
+
+        return true;
     });
 
     // ...
