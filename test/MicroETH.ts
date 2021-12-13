@@ -28,21 +28,29 @@ describe(contractName, function () {
         expect(supply).to.equal(0);
     });
 
-    it("Should check that test wallet #1 contains no balance", async function () {
-        let balance = (await contract.balanceOf(walletAddress)).toNumber();
-        expect(balance).to.equal(0);
+    it("Should check that test wallet #1 contains no METH", async function () {
+        let meth = (await contract.balanceOf(walletAddress)).toNumber();
+        expect(meth).to.equal(0);
     });
 
     it("Should issue METH tokens after sending ether to deposit()", async function () {
-        let startBalance = (await wallet.getBalance());
+        let startETH = (await wallet.getBalance());
+        let startMETH = (await contract.balanceOf(walletAddress)).toNumber();
+
         let tx = (await contract.deposit({value: ethers.utils.parseEther("1.0")}));
 
-        let match = (await KSink.waitWalletBalanceChange(tx, wallet, startBalance, ethers.utils.parseEther("1.0")));
+        // Check wallet balance
+        let match = (await KSink.waitWalletBalanceChange(tx, wallet, startETH, ethers.utils.parseEther("1.0")));
         expect(match).to.be.true;
+
+        // Check METH balance
+        let newMETH = (await contract.balanceOf(walletAddress)).toNumber();
+        expect(newMETH - startMETH).to.equal(1000000);
     });
 
     it("Should issue METH tokens after sending ether to fallback", async function () {
-        let startBalance = (await wallet.getBalance());
+        let startETH = (await wallet.getBalance());
+        let startMETH = (await contract.balanceOf(walletAddress)).toNumber();
 
         let txRequest = {
             to: contract.address,
@@ -50,8 +58,13 @@ describe(contractName, function () {
         };
         let tx = wallet.sendTransaction(txRequest);
 
-        let match = (await KSink.waitWalletBalanceChange(tx, wallet, startBalance, ethers.utils.parseEther("1.0")));
+        // Check wallet balance
+        let match = (await KSink.waitWalletBalanceChange(tx, wallet, startETH, ethers.utils.parseEther("1.0")));
         expect(match).to.be.true;
+
+        // Check METH balance
+        let newMETH = (await contract.balanceOf(walletAddress)).toNumber();
+        expect(newMETH - startMETH).to.equal(1000000);
     });
 
     // ...
