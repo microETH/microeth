@@ -4,14 +4,13 @@ import { expect } from 'chai';
 import { Signer } from 'ethers';
 import * as KSink from './util/KSink';
 
-let contractName = 'MicroETH';
+let contractName = "MicroETH";
 
 describe(contractName, function () {
 
     let contract: any;
     let wallet: Signer;
     let walletAddress: string;
-    let deploymentOnly = false; // Measure constructor gas, then exit
 
     before(async function() {
         const accounts = await ethers.getSigners();
@@ -23,14 +22,10 @@ describe(contractName, function () {
         await contract.deployed();
     });
 
-    it("Should test the compilation", async function () {
-        let x = (await contract.getX()).toNumber();
-        expect(x).to.equal(456);
+    it("Should verify that there is no initial supply.", async function () {
+        let supply = (await contract.totalSupply()).toNumber();
+        expect(supply).to.equal(0);
     });
-
-    if (deploymentOnly) {
-        return;
-    }
 
     // ...
 });
