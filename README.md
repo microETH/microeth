@@ -13,7 +13,27 @@ Official microETH ERC20 contract scripts.
 
 ## Contract interaction
 
-TODO: deposit/withdrawal
+microETH is compatible with the [ERC20 standard](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/).
+
+Ethereum can be freely exchanged to microETH (μETH) tokens through contract interaction. For every 0.000001 ETH sent to microETH, the sender will receive 1 μETH token.
+
+### Methods
+
+```
+function deposit() external payable nonReentrant;
+```
+> Exchanges ETH to μETH tokens. Requires a minimum of 0.000001 ETH to create a μETH token. Fractional μETH tokens are not supported, any ETH remainder will be refunded to the sender.
+
+
+```
+fallback();
+```
+> Catches ETH sent to the contract. Performs the same action as deposit().
+
+```
+function withdraw(uint256 ueth) external nonReentrant
+```
+> Exchanges μETH tokens to ETH. The exchanged ETH is sent to the caller. If more μETH tokens are requested than the caller account holds, the transaction will be reverted with an error.
 
 ## Install
 
