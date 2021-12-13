@@ -41,6 +41,26 @@ describe(contractName, () => {
     });
 
     //
+    // Metadata validation
+    //
+
+    describe("Metadata validation", () => {
+
+        it("Name match", async () => {
+            expect(await contract.name()).to.equal('MicroETH');
+        });
+
+        it("Symbol match", async () => {
+            expect(await contract.symbol()).to.equal('METH');
+        });
+
+        it("Decimal match", async () => {
+            expect(await contract.decimals()).to.equal(18);
+        });
+
+    });
+
+    //
     // Basic token deposit and withdrawal
     //
 
