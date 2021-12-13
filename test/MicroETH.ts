@@ -345,6 +345,33 @@ describe(contractName, () => {
             await KSink.waitWriteMethod(wallets[2].contract.withdraw(methHalf));
         });
 
+        it("Should error when transferring tokens to the zero address", async () => {
+            let eth = ethers.utils.parseEther("0.05");
+            let meth = BigNumber.from("50000");
+            let methHalf = meth.div(2);
+
+            let balance1 = BigNumber.from("0");
+
+            // Check initial balance
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq("0")).to.be.true;
+
+            // Deposit to wallet 1
+            let tx = (await wallets[1].contract.deposit({value: eth}));
+            let txResult = (await KSink.waitWriteMethod(tx));
+
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq(meth)).to.be.true;
+
+            // Transfer to zero address
+            await expect(
+                (wallets[1].contract.transfer('0x0000000000000000000000000000000000000000', methHalf))
+            ).to.be.revertedWith("ERC20: transfer to the zero address");
+
+            // Withdraw remaining
+            await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
+        });
+
 
     });
 
