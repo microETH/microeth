@@ -1,9 +1,8 @@
 
 import { ethers, waffle } from 'hardhat';
 import { expect } from 'chai';
-import { Signer } from 'ethers';
+import {BigNumber, Signer} from 'ethers';
 import * as KSink from './util/KSink';
-import {waitWalletBalanceChange} from "./util/KSink";
 
 let contractName = "MicroETH";
 
@@ -34,37 +33,68 @@ describe(contractName, function () {
     });
 
     it("Should issue METH tokens after sending ether to deposit()", async function () {
-        let startETH = (await wallet.getBalance());
-        let startMETH = (await contract.balanceOf(walletAddress)).toNumber();
 
-        let tx = (await contract.deposit({value: ethers.utils.parseEther("1.0")}));
+        let eth = ethers.utils.parseEther("1.0");
+        let meth = BigNumber.from('1000000');
+
+        let startETH = (await wallet.getBalance());
+        let startMETH = (await contract.balanceOf(walletAddress));
+
+        let tx = (await contract.deposit({value: eth}));
+        let txResult = (await KSink.waitWriteMethod(tx));
+
+        let newETH = (await wallet.getBalance());
+        let newMETH = (await contract.balanceOf(walletAddress));
+
+        let temp = null;
 
         // Check wallet balance
-        let match = (await KSink.waitWalletBalanceChange(tx, wallet, startETH, ethers.utils.parseEther("1.0")));
-        expect(match).to.be.true;
+        temp = BigNumber.from(startETH);
+        temp = temp.sub(txResult.gasTotal);
+        temp = temp.sub(eth);
+
+        expect(temp.eq(newETH)).to.be.true;
 
         // Check METH balance
-        let newMETH = (await contract.balanceOf(walletAddress)).toNumber();
-        expect(newMETH - startMETH).to.equal(1000000);
+        temp = BigNumber.from(newMETH);
+        temp = temp.sub(startMETH);
+
+        expect(temp.eq(meth)).to.be.true;
     });
 
-    it("Should issue METH tokens after sending ether to fallback", async function () {
+    it("Should issue METH tokens after sending ether to fallback()", async function () {
+
+        let eth = ethers.utils.parseEther("0.5");
+        let meth = BigNumber.from('500000');
+
         let startETH = (await wallet.getBalance());
-        let startMETH = (await contract.balanceOf(walletAddress)).toNumber();
+        let startMETH = (await contract.balanceOf(walletAddress));
+
 
         let txRequest = {
             to: contract.address,
-            value: ethers.utils.parseEther("1.0")
+            value: eth
         };
         let tx = wallet.sendTransaction(txRequest);
+        let txResult = (await KSink.waitWriteMethod(tx));
+
+        let newETH = (await wallet.getBalance());
+        let newMETH = (await contract.balanceOf(walletAddress));
+
+        let temp = null;
 
         // Check wallet balance
-        let match = (await KSink.waitWalletBalanceChange(tx, wallet, startETH, ethers.utils.parseEther("1.0")));
-        expect(match).to.be.true;
+        temp = BigNumber.from(startETH);
+        temp = temp.sub(txResult.gasTotal);
+        temp = temp.sub(eth);
+
+        expect(temp.eq(newETH)).to.be.true;
 
         // Check METH balance
-        let newMETH = (await contract.balanceOf(walletAddress)).toNumber();
-        expect(newMETH - startMETH).to.equal(1000000);
+        temp = BigNumber.from(newMETH);
+        temp = temp.sub(startMETH);
+
+        expect(temp.eq(meth)).to.be.true;
     });
 
     // ...
