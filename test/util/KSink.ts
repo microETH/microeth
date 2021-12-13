@@ -1,10 +1,24 @@
 import {ethers} from "hardhat";
 import {BigNumber, BigNumberish, Signer} from 'ethers';
 
-interface WriteResult {
-    events: any,
+//
+// Interfaces
+//
+
+export interface TestWallet {
+    wallet: Signer,
+    address: string,
+    contract: any // Contract
+}
+
+export interface WriteResult {
+    events: any[],
     gasTotal: BigNumber
 }
+
+//
+// Methods
+//
 
 export const waitWriteMethod = async function(tx: Promise<any>): Promise<WriteResult> {
     let txMined = (await (await tx).wait());
@@ -17,6 +31,17 @@ export const waitWriteMethod = async function(tx: Promise<any>): Promise<WriteRe
         events: txMined.events,
         gasTotal: gasTotal
     };
+}
+
+export const writeResultContainsEvent = function(result: WriteResult, eventName: string): boolean {
+    for (let i = 0; i < result.events.length; i++) {
+        let event = result.events[i];
+        if (event.hasOwnProperty("event") && event["event"] == eventName) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 export const parseMETH = (meth: string): BigNumber => {
