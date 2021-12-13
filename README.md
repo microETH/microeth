@@ -11,6 +11,16 @@
 
 Official microETH ERC20 contract scripts.
 
+## What is microETH?
+
+microETH (μETH) is a token representing a single micro unit of Ethereum. The goal of the microETH token project is to make Ethereum easier to use for those who suffer from the psychological effect known as "unit bias". microETH tokens are non-divisible and are always represented as whole units.
+
+### Conversion table
+
+| microETH      | ETH           | Gas (Gwei)        | Wei               | Scientific    |
+| ------------- | ------------- | -------------     | -------------     | ------------- |
+| 1 μETH        | 0.000001 ETH  | 1000 gwei         | 1000000000000 wei | 10^12         |
+
 ## Contract interaction
 
 microETH is compatible with the [ERC20 standard](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/).
