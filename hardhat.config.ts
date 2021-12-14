@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import dotenv from "dotenv";
+import { ChainID } from "./scripts/microeth/Constants";
 
 dotenv.config();
 
@@ -53,15 +54,25 @@ module.exports = {
 if (process.env.hasOwnProperty('ROPSTEN_URL')) {
   module.exports.networks.ropsten = {
     url: process.env.ROPSTEN_URL,
-    chainId: 3,
-    accounts: [ (process.env.hasOwnProperty('ROPSTEN_PK') ? process.env.ROPSTEN_PK : '') ]
+    chainId: ChainID.Ropsten,
+    accounts: [],
+    testContract: [ (process.env.hasOwnProperty('ROPSTEN_TEST_CONTRACT') ? process.env.ROPSTEN_TEST_CONTRACT : '') ],
+  }
+
+  if (process.env.hasOwnProperty('ROPSTEN_PK') && process.env.ROPSTEN_PK !== undefined) {
+    module.exports.networks.ropsten.accounts = process.env.ROPSTEN_PK.split(',');
   }
 }
 
 if (process.env.hasOwnProperty('RINKEBY_URL')) {
   module.exports.networks.rinkeby = {
     url: process.env.RINKEBY_URL,
-    chainId: 4,
-    accounts: [ (process.env.hasOwnProperty('RINKEBY_PK') ? process.env.RINKEBY_PK : '') ]
+    chainId: ChainID.Rinkeby,
+    accounts:[],
+    testContract: [ (process.env.hasOwnProperty('RINKEBY_TEST_CONTRACT') ? process.env.RINKEBY_TEST_CONTRACT : '') ],
+  }
+
+  if (process.env.hasOwnProperty('RINKEBY_PK') && process.env.RINKEBY_PK !== undefined) {
+    module.exports.networks.rinkeby.accounts = process.env.RINKEBY_PK.split(',');
   }
 }

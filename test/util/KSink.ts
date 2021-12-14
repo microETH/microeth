@@ -1,5 +1,5 @@
 import {ethers} from "hardhat";
-import {BigNumber, BigNumberish, Signer} from 'ethers';
+import {BigNumber, BigNumberish, Signer, Contract} from 'ethers';
 
 //
 // Interfaces
@@ -8,7 +8,7 @@ import {BigNumber, BigNumberish, Signer} from 'ethers';
 export interface TestWallet {
     wallet: Signer,
     address: string,
-    contract: any // Contract
+    contract: Contract
 }
 
 export interface WriteResult {
