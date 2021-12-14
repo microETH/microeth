@@ -44,10 +44,10 @@ export const writeResultContainsEvent = function(result: WriteResult, eventName:
     return false;
 }
 
-export const parseMETH = (meth: string): BigNumber => {
-    return ethers.utils.parseUnits(meth, 12);
+export const parseUETH = (ueth: string): BigNumber => {
+    return ethers.utils.parseUnits(ueth, 12);
 }
 
-export const methToWei = (meth: BigNumberish): BigNumber => {
-    return BigNumber.from(meth).mul(1000000000000);
+export const uethToWei = (ueth: BigNumberish): BigNumber => {
+    return BigNumber.from(ueth).mul(1000000000000);
 }

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-//       __  ____                 _______________   __
-//      /  |/  /_______________  / ____/__  __/ /  / /
-//     / /|_/ / / ___/ ___/ __ \/ __/    / / / /__/ /
-//    / /  / / / /__/ /  / /_/ / /___   / / / ___  /
-//   /_/  /_/_/\___/_/   \____/_____/  /_/ /_/  /_/
+//                                   _______________   __
+//      ____ ___  __ _____________  / ____/__  __/ /  / /
+//     / __  __ \/ / ___/ ___/ __ \/ __/    / / / /__/ /
+//    / / / / / / / /__/ /  / /_/ / /___   / / / ___  /
+//   /_/ /_/ /_/_/\___/_/   \____/_____/  /_/ /_/  /_/
 //
 
 pragma solidity ^0.8.9;
@@ -18,7 +18,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
     // Definitions
     //
 
-    uint256 public constant ONE_METH = 1e12; // 1000000000000 wei or 0.000001 eth or 1 szabo
+    uint256 public constant ONE_UETH = 1e12; // 1 μETH or 0.000001 ETH or 1000 gwei or 1000000000000 wei or 10^12
 
     event Deposit(address indexed from, uint256 value);
     event Withdrawal(address indexed to, uint256 value);
@@ -27,7 +27,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
     // External methods
     //
 
-    constructor() ERC20("MicroETH", "METH") {
+    constructor() ERC20("microETH", "\xCE\xBCETH") {
         // ...
     }
 
@@ -44,15 +44,15 @@ contract MicroETH is ERC20, ReentrancyGuard {
     }
 
     function _deposit() private {
-        if (msg.value < ONE_METH) {
-            revert("Minimum deposit is 1 METH.");
+        if (msg.value < ONE_UETH) {
+            revert("Minimum deposit is 1 \xCE\xBCETH.");
         }
 
-        uint256 meth = msg.value / ONE_METH;
-        uint256 remainder = msg.value % ONE_METH;
+        uint256 ueth = msg.value / ONE_UETH;
+        uint256 remainder = msg.value % ONE_UETH;
 
         // Mint tokens
-        _mint(msg.sender, meth);
+        _mint(msg.sender, ueth);
 
         // Refund remainder
         if (remainder > 0) {
@@ -62,30 +62,30 @@ contract MicroETH is ERC20, ReentrancyGuard {
             }
         }
 
-        emit Deposit(msg.sender, meth);
+        emit Deposit(msg.sender, ueth);
     }
 
-    function withdraw(uint256 meth) external nonReentrant {
-        if (meth < 1) {
-            revert("Minimum withdrawal is 1 METH.");
+    function withdraw(uint256 ueth) external nonReentrant {
+        if (ueth < 1) {
+            revert("Minimum withdrawal is 1 \xCE\xBCETH.");
         }
 
-        uint256 balanceMeth = balanceOf(msg.sender);
-        if (meth > balanceMeth) {
+        uint256 balanceUETH = balanceOf(msg.sender);
+        if (ueth > balanceUETH) {
             revert("Insufficient balance.");
         }
 
         // Burn tokens
-        _burn(msg.sender, meth);
+        _burn(msg.sender, ueth);
 
         // Send ether
-        uint256 value = ONE_METH * meth;
+        uint256 value = ONE_UETH * ueth;
         (bool sent,) = msg.sender.call{value: value}("");
         if (!sent) {
             revert("Failed to withdraw.");
         }
 
-        emit Withdrawal(msg.sender, meth);
+        emit Withdrawal(msg.sender, ueth);
     }
 
     // ...

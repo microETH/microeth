@@ -1,13 +1,13 @@
 ```
-       __  ____                 _______________   __
-      /  |/  /_______________  / ____/__  __/ /  / /
-     / /|_/ / / ___/ ___/ __ \/ __/    / / / /__/ /
-    / /  / / / /__/ /  / /_/ / /___   / / / ___  /
-   /_/  /_/_/\___/_/   \____/_____/  /_/ /_/  /_/
+                                   _______________   __
+      ____ ___  __ _____________  / ____/__  __/ /  / /
+     / __  __ \/ / ___/ ___/ __ \/ __/    / / / /__/ /
+    / / / / / / / /__/ /  / /_/ / /___   / / / ___  /
+   /_/ /_/ /_/_/\___/_/   \____/_____/  /_/ /_/  /_/
 
 ```
 
-# MicroETH (METH)
+# microETH (μETH)
 
 Official microETH ERC20 contract scripts.
 
@@ -20,6 +20,10 @@ microETH (μETH) is a token representing a single micro unit of Ethereum. The go
 | microETH      | ETH           | Gas (Gwei)        | Wei               | Scientific    |
 | ------------- | ------------- | -------------     | -------------     | ------------- |
 | 1 μETH        | 0.000001 ETH  | 1000 gwei         | 1000000000000 wei | 10^12         |
+
+### μETH symbol
+
+μETH uses ["GREEK SMALL LETTER MU" (U+03BC)](https://en.wikipedia.org/wiki/Mu_(letter)Character_encodings) as its micro symbol.
 
 ## Contract interaction
 
@@ -62,7 +66,7 @@ It can be run natively on a system with NodeJS/NPM or inside of a sandboxed VM e
 
 ### Sandbox environment (Ubuntu VM)
 
-A sandboxed environment for Mac/Windows/Linux is also included. It contains all of the tools necessary to develop microETH. The sandbox works by orchestrating VirtualBox, Vagrant, and Ubuntu's official Vagrant box with a local script, `dev.sh`.
+A sandboxed environment for Mac/Windows/Linux is also included. It contains all the tools necessary to develop microETH. The sandbox works by orchestrating VirtualBox, Vagrant, and Ubuntu's official Vagrant box with a local script, `dev.sh`.
 
 * Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * Install [Vagrant](https://www.vagrantup.com/downloads)
