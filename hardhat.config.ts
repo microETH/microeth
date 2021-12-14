@@ -57,3 +57,11 @@ if (process.env.hasOwnProperty('ROPSTEN_URL')) {
     accounts: [ (process.env.hasOwnProperty('ROPSTEN_PK') ? process.env.ROPSTEN_PK : '') ]
   }
 }
+
+if (process.env.hasOwnProperty('RINKEBY_URL')) {
+  module.exports.networks.rinkeby = {
+    url: process.env.RINKEBY_URL,
+    chainId: 4,
+    accounts: [ (process.env.hasOwnProperty('RINKEBY_PK') ? process.env.RINKEBY_PK : '') ]
+  }
+}

@@ -100,7 +100,7 @@ Cmd -> "whoami /priv". If successful, "SeCreateSymbolicLinkPrivilege" will appea
 
 See `.env.example` for supported networks.
 
-Example (ropsten):
+Example (rinkeby):
 
-* Update `.env` with JSONRPC network configuration (`ROPSTEN_URL`, `ROPSTEN_PK`).
-* `npx hardhat run --network ropsten scripts/deploy.ts`
+* Update `.env` with JSONRPC network configuration (`RINKEBY_URL`, `RINKEBY_PK`).
+* `npx hardhat run --network rinkeby scripts/deploy.ts`
