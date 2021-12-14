@@ -56,8 +56,8 @@ contract MicroETH is ERC20, ReentrancyGuard {
     }
 
     function withdraw(uint256 ueth) external nonReentrant {
-        if (ueth < 1) {
-            revert("Minimum withdrawal is 0.000000000000000001 \xCE\xBCETH.");
+        if (ueth < ETH_CONVERSION) {
+            revert("Minimum withdrawal is 0.000000000001 \xCE\xBCETH.");
         }
 
         uint256 balance = balanceOf(msg.sender);

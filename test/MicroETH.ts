@@ -274,9 +274,10 @@ describe(contractName, function() {
             while (expectedSupply.gt(0))
             {
                 let ueth = expectedSupply.div(2);
-                if (ueth.eq(0)) {
-                    ueth = BigNumber.from(1);
+                if (expectedSupply.div(2).lt(1000000 * 2)) {
+                    ueth = expectedSupply;
                 }
+
                 await KSink.waitWriteMethod(wallets[0].contract.withdraw(ueth));
                 expectedSupply = expectedSupply.sub(ueth);
 
@@ -439,6 +440,7 @@ describe(contractName, function() {
 
             let eth = ethers.utils.parseEther("0.1");
             let ueth = KSink.uethToUETHToken("100000");
+            let transferUETH = KSink.uethToUETHToken("1");
 
             let balance1 = BigNumber.from("0");
             let balance2 = BigNumber.from("0");
@@ -461,32 +463,32 @@ describe(contractName, function() {
 
             // Try to spend from a disallowed peer account
             await expect(
-                wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, BigNumber.from("1"))
+                wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, transferUETH)
             ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
 
             // Ask peer to check allowance
             allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
             expect(allowance.eq("0")).to.be.true;
 
-            // Allow peer to spend up to 1 token
-            await wallets[1].contract.approve(wallets[2].address, BigNumber.from("1"));
+            // Allow peer to spend up to 1 full token
+            await wallets[1].contract.approve(wallets[2].address, transferUETH);
 
             // Ask peer to check allowance
             allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
-            expect(allowance.eq("1")).to.be.true;
+            expect(allowance.eq(transferUETH)).to.be.true;
 
             // Ask peer to transfer tokens
-            wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, BigNumber.from("1"))
+            wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, transferUETH)
 
             allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
             expect(allowance.eq("0")).to.be.true;
 
             // Check token balances
             balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
-            expect(balance1.eq(ueth.sub("1"))).to.be.true;
+            expect(balance1.eq(ueth.sub(transferUETH))).to.be.true;
 
             balance2 = (await wallets[2].contract.balanceOf(wallets[2].address));
-            expect(balance2.eq("1")).to.be.true;
+            expect(balance2.eq(transferUETH)).to.be.true;
 
             // Withdraw remaining
             await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
