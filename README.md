@@ -23,7 +23,7 @@ microETH (μETH) is a token representing a single micro unit of Ethereum. The go
 
 ### μETH symbol
 
-μETH uses ["GREEK SMALL LETTER MU" (U+03BC)](https://en.wikipedia.org/wiki/Mu_(letter)Character_encodings) as its micro symbol.
+μETH uses ["GREEK SMALL LETTER MU" (U+03BC)](https://en.wikipedia.org/wiki/Mu_(letter)#Character_encodings) as its micro symbol.
 
 ## Contract interaction
 
