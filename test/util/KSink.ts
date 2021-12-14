@@ -49,5 +49,13 @@ export const parseUETH = (ueth: string): BigNumber => {
 }
 
 export const uethToWei = (ueth: BigNumberish): BigNumber => {
-    return BigNumber.from(ueth).mul(1000000000000);
+    return BigNumber.from(ueth).mul('1000000000000');
+}
+
+export const uethTokenToWei = (ueth: BigNumberish): BigNumber => {
+    return BigNumber.from(ueth).div('1000000');
+}
+
+export const uethToUETHToken = (ueth: BigNumberish): BigNumber => {
+    return BigNumber.from(ueth).mul('1000000000000000000');
 }

@@ -18,7 +18,8 @@ contract MicroETH is ERC20, ReentrancyGuard {
     // Definitions
     //
 
-    uint256 public constant ONE_UETH = 1e12; // 1 μETH or 0.000001 ETH or 1000 gwei or 1000000000000 wei or 10^12
+    uint256 public constant ONE_UETH_WEI = 1e12;   // 1 μETH or 0.000001 ETH or 1000 gwei or 1000000000000 wei or 10^12
+    uint256 public constant ETH_CONVERSION = 1e6;  // Map Wei to μETH at this rate
 
     event Deposit(address indexed from, uint256 value);
     event Withdrawal(address indexed to, uint256 value);
@@ -44,34 +45,23 @@ contract MicroETH is ERC20, ReentrancyGuard {
     }
 
     function _deposit() private {
-        if (msg.value < ONE_UETH) {
+        if (msg.value < ONE_UETH_WEI) {
             revert("Minimum deposit is 1 \xCE\xBCETH.");
         }
 
-        uint256 ueth = msg.value / ONE_UETH;
-        uint256 remainder = msg.value % ONE_UETH;
-
         // Mint tokens
+        uint256 ueth = msg.value * ETH_CONVERSION;
         _mint(msg.sender, ueth);
-
-        // Refund remainder
-        if (remainder > 0) {
-            (bool sent,) = msg.sender.call{value: remainder}("");
-            if (!sent) {
-                revert("Failed to send refund fraction.");
-            }
-        }
-
         emit Deposit(msg.sender, ueth);
     }
 
     function withdraw(uint256 ueth) external nonReentrant {
         if (ueth < 1) {
-            revert("Minimum withdrawal is 1 \xCE\xBCETH.");
+            revert("Minimum withdrawal is 0.000000000000000001 \xCE\xBCETH.");
         }
 
-        uint256 balanceUETH = balanceOf(msg.sender);
-        if (ueth > balanceUETH) {
+        uint256 balance = balanceOf(msg.sender);
+        if (ueth > balance) {
             revert("Insufficient balance.");
         }
 
@@ -79,7 +69,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
         _burn(msg.sender, ueth);
 
         // Send ether
-        uint256 value = ONE_UETH * ueth;
+        uint256 value = ueth / ETH_CONVERSION;
         (bool sent,) = msg.sender.call{value: value}("");
         if (!sent) {
             revert("Failed to withdraw.");

@@ -4,7 +4,7 @@ import * as hre from "hardhat";
 import { expect } from "chai";
 import {BigNumber, Signer} from "ethers";
 import * as KSink from "./util/KSink";
-import {TestWallet, writeResultContainsEvent} from "./util/KSink";
+import {TestWallet, uethTokenToWei, uethToUETHToken, writeResultContainsEvent} from "./util/KSink";
 import { ChainID } from "./../scripts/microeth/Constants";
 
 let contractName = "MicroETH";
@@ -65,7 +65,7 @@ describe(contractName, function() {
             if (contractAddress.length == 0) {
                 throw new Error("Invalid test contract.");
             }
-            
+
             throw new Error("TODO: implement me!");
 
             //new ethers.Contract(contractAddress, contractABI, wallet);
@@ -154,7 +154,7 @@ describe(contractName, function() {
             }
 
             let eth = ethers.utils.parseEther("1.0");
-            let ueth = BigNumber.from("1000000");
+            let ueth = uethToUETHToken("1000000");
 
             let startETH = (await wallets[0].wallet.getBalance());
             let startUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
@@ -187,7 +187,7 @@ describe(contractName, function() {
             }
 
             let eth = ethers.utils.parseEther("0.5");
-            let ueth = BigNumber.from("500000");
+            let ueth = uethToUETHToken("500000");
 
             let startETH = (await wallets[0].wallet.getBalance());
             let startUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
@@ -218,41 +218,6 @@ describe(contractName, function() {
             expect(temp.eq(ueth)).to.be.true;
         });
 
-        it("Should issue partial refund when sent ether is not evenly divisible by UETH", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
-
-            let partialWei = BigNumber.from("32000");
-            let eth = ethers.utils.parseEther("1.0").add(partialWei);
-            let ueth = BigNumber.from("1000000");
-
-            let startETH = (await wallets[0].wallet.getBalance());
-            let startUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
-
-            let tx = (await wallets[0].contract.deposit({value: eth}));
-            let txResult = (await KSink.waitWriteMethod(tx));
-
-            let newETH = (await wallets[0].wallet.getBalance());
-            let newUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
-
-            let temp = null;
-
-            // Check wallet balance
-            temp = BigNumber.from(startETH);
-            temp = temp.sub(txResult.gasTotal);
-            temp = temp.sub(eth);
-            temp = temp.add(partialWei);
-
-            expect(temp.eq(newETH)).to.be.true;
-
-            // Check UETH balance
-            temp = BigNumber.from(newUETH);
-            temp = temp.sub(startUETH);
-
-            expect(temp.eq(ueth)).to.be.true;
-        });
-
         it("Should withdraw all UETH tokens and receive ether", async function() {
             if (chainId != ChainID.Hardhat) {
                 this.skip();
@@ -272,7 +237,7 @@ describe(contractName, function() {
             // Check wallet balance
             temp = BigNumber.from(startETH);
             temp = temp.sub(txResult.gasTotal);
-            temp = temp.add(KSink.uethToWei(startUETH));
+            temp = temp.add(KSink.uethTokenToWei(startUETH));
 
             expect(temp.eq(newETH)).to.be.true;
 
@@ -286,12 +251,12 @@ describe(contractName, function() {
                 this.skip();
             }
 
-            let expectedSupply = 0;
-            let supply = 0;
+            let expectedSupply = BigNumber.from(0);
+            let supply = BigNumber.from(0);
 
             // Zero supply
-            supply = (await wallets[0].contract.totalSupply()).toNumber();
-            expect(supply).to.equal(0);
+            supply = (await wallets[0].contract.totalSupply());
+            expect(supply.eq(0)).to.be.true;
 
             // Deposit
             let uethValues = [ 1, 2, 99, 100 ];
@@ -299,26 +264,29 @@ describe(contractName, function() {
                 let ueth = uethValues[i];
                 let tx = (await wallets[0].contract.deposit({value: KSink.uethToWei(ueth)}));
                 let txResult = (await KSink.waitWriteMethod(tx));
-                expectedSupply += ueth;
+                expectedSupply = expectedSupply.add(KSink.uethToUETHToken(ueth));
 
-                supply = (await wallets[0].contract.totalSupply()).toNumber();
-                expect(supply).to.equal(expectedSupply);
+                supply = (await wallets[0].contract.totalSupply());
+                expect(supply.eq(expectedSupply)).to.be.true;
             }
 
             // Withdraw
-            while (expectedSupply > 0)
+            while (expectedSupply.gt(0))
             {
-                let ueth = Math.round(expectedSupply / 2);
+                let ueth = expectedSupply.div(2);
+                if (ueth.eq(0)) {
+                    ueth = BigNumber.from(1);
+                }
                 await KSink.waitWriteMethod(wallets[0].contract.withdraw(ueth));
-                expectedSupply -= ueth;
+                expectedSupply = expectedSupply.sub(ueth);
 
-                supply = (await wallets[0].contract.totalSupply()).toNumber();
-                expect(supply).to.equal(expectedSupply);
+                supply = (await wallets[0].contract.totalSupply());
+                expect(supply.eq(expectedSupply)).to.be.true;
             }
 
             // Zero supply
-            supply = (await wallets[0].contract.totalSupply()).toNumber();
-            expect(supply).to.equal(0);
+            supply = (await wallets[0].contract.totalSupply());
+            expect(supply.eq(0)).to.be.true;
         });
 
     });
@@ -363,17 +331,6 @@ describe(contractName, function() {
 
     describe("Withdrawal revert cases", function() {
 
-        it("Should revert when withdrawal is less than 1 UETH", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
-
-            let txPromise = wallets[0].contract.withdraw(0);
-            await expect(
-                KSink.waitWriteMethod(txPromise)
-            ).to.be.revertedWith("Minimum withdrawal is 1 \u03BCETH.");
-        });
-
         it("Should revert on insufficient balance", async function() {
             if (chainId != ChainID.Hardhat) {
                 this.skip();
@@ -385,13 +342,13 @@ describe(contractName, function() {
             let txResult = (await KSink.waitWriteMethod(tx));
 
             // Overdraw
-            let txPromise = wallets[0].contract.withdraw(Math.pow(10, 9));
+            let txPromise = wallets[0].contract.withdraw(uethToUETHToken(ueth + 1));
             await expect(
                 KSink.waitWriteMethod(txPromise)
             ).to.be.revertedWith("Insufficient balance.");
 
             // Withdraw remaining
-            await KSink.waitWriteMethod(wallets[0].contract.withdraw(ueth));
+            await KSink.waitWriteMethod(wallets[0].contract.withdraw(uethToUETHToken(ueth)));
         });
 
     });
@@ -408,7 +365,7 @@ describe(contractName, function() {
             }
 
             let eth = ethers.utils.parseEther("0.05");
-            let ueth = BigNumber.from("50000");
+            let ueth = KSink.uethToUETHToken("50000");
             let uethHalf = ueth.div(2);
 
             let balance1 = BigNumber.from("0");
@@ -450,7 +407,7 @@ describe(contractName, function() {
             }
 
             let eth = ethers.utils.parseEther("0.05");
-            let ueth = BigNumber.from("50000");
+            let ueth = KSink.uethToUETHToken("50000");
             let uethHalf = ueth.div(2);
 
             let balance1 = BigNumber.from("0");
@@ -481,7 +438,7 @@ describe(contractName, function() {
             }
 
             let eth = ethers.utils.parseEther("0.1");
-            let ueth = BigNumber.from("100000");
+            let ueth = KSink.uethToUETHToken("100000");
 
             let balance1 = BigNumber.from("0");
             let balance2 = BigNumber.from("0");
