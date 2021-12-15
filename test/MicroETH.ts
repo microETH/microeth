@@ -95,7 +95,7 @@ describe(contractName, function() {
             }
 
             let supply = (await wallets[0].contract.totalSupply());
-            expect(supply).to.be.true;
+            expect(supply.eq(0)).to.be.true;
         });
 
         it("Should check that test wallet #1 contains no " + UETH_STRING, async function() {
