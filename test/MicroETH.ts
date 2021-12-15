@@ -63,9 +63,9 @@ describe(contractName, function() {
                 throw new Error("Need more wallets defined.");
             }
 
-            let contractAddress = '';
+            let contractAddress = "";
             let userConf = <any>hre.network.config;
-            if (userConf.hasOwnProperty('testContract') && userConf.testContract !== undefined) {
+            if (userConf.hasOwnProperty("testContract") && userConf.testContract !== undefined) {
                 contractAddress = userConf.testContract;
             }
             if (contractAddress.length == 0) {
@@ -128,7 +128,7 @@ describe(contractName, function() {
             //    this.skip();
             //}
 
-            expect(await wallets[0].contract.symbol()).to.equal('uETH');
+            expect(await wallets[0].contract.symbol()).to.equal("uETH");
         });
 
         it("Decimal match", async function() {
@@ -152,7 +152,7 @@ describe(contractName, function() {
             //    this.skip();
             //}
 
-            let ether = "0.0001"; // 100 μETH
+            let ether = "0.0001"; // 100 uETH
             let eth = ethers.utils.parseEther(ether);
             let ueth = KSink.uethToUETHToken(KSink.etherToUETH(ether));
 
@@ -174,7 +174,7 @@ describe(contractName, function() {
 
             expect(temp.eq(newETH)).to.be.true;
 
-            // Check μETH balance
+            // Check uETH balance
             temp = BigNumber.from(newUETH);
             temp = temp.sub(startUETH);
 
@@ -186,7 +186,7 @@ describe(contractName, function() {
             //    this.skip();
             //}
 
-            let ether = "0.0002"; // 200 μETH
+            let ether = "0.0002"; // 200 uETH
             let eth = ethers.utils.parseEther(ether);
             let ueth = KSink.uethToUETHToken(KSink.etherToUETH(ether));
 
@@ -212,7 +212,7 @@ describe(contractName, function() {
 
             expect(temp.eq(newETH)).to.be.true;
 
-            // Check μETH balance
+            // Check uETH balance
             temp = BigNumber.from(newUETH);
             temp = temp.sub(startUETH);
 
@@ -242,7 +242,7 @@ describe(contractName, function() {
 
             expect(temp.eq(newETH)).to.be.true;
 
-            // Check μETH balance
+            // Check uETH balance
             expect(startUETH.gt("0")).to.be.true;
             expect(newUETH.eq("0")).to.be.true;
         });
@@ -339,7 +339,7 @@ describe(contractName, function() {
             //}
 
             // Deposit
-            let ether = "0.0001"; // 100 μETH
+            let ether = "0.0001"; // 100 uETH
             let ueth = KSink.etherToUETH(ether);
 
             let tx = (await wallets[0].contract.deposit({value: KSink.uethToWei(ueth)}));
@@ -496,6 +496,93 @@ describe(contractName, function() {
             // Withdraw remaining
             await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
             await KSink.waitWriteMethod(wallets[2].contract.withdraw(balance2));
+        });
+
+    });
+
+    //
+    // Stress tests
+    //
+
+    describe("Stress testing", function() {
+
+        it("Verify that contract balances are correct after 1000 mixed transactions", async function() {
+            if (chainId != ChainID.Hardhat) {
+                this.skip();
+            }
+
+            let transCount = 1000;
+
+            let walletTotal = [];
+            for (let i = 0; i < wallets.length; i++) {
+                let balance = (await wallets[i].contract.balanceOf(wallets[i].address));
+                walletTotal.push(balance);
+            }
+
+            let amounts = [
+                "0.000001", // 1 uETH
+                "0.000002", // 2 uETH
+                "0.000010", // 10 uETH
+                "0.000032", // 32 uETH
+                "0.000099", // 99 uETH
+                "0.0001",   // 100 uETH
+                "0.000101", // 101 uETH
+            ];
+            let amountIndex = 0;
+            let walletIndex = 0;
+
+            for (let i = 0; i < transCount; i++) {
+
+                let wallet = wallets[walletIndex];
+
+                // Purchase uETH
+                let ether = amounts[amountIndex];
+                let eth = ethers.utils.parseEther(ether);
+                let ueth = KSink.uethToUETHToken(KSink.etherToUETH(ether));
+
+                let startETH = (await wallet.wallet.getBalance());
+                let startUETH = (await wallet.contract.balanceOf(wallet.address));
+
+                let tx = (await wallet.contract.deposit({value: eth}));
+                let txResult = (await KSink.waitWriteMethod(tx));
+
+                let newETH = (await wallet.wallet.getBalance());
+                let newUETH = (await wallet.contract.balanceOf(wallet.address));
+
+                let temp: any = null;
+                
+                //console.log("i: " + i + ", startETH: " + startETH + ", newETH: " + newETH + ", startUETH: " + startUETH + ", newUETH: " + newUETH);
+                
+                // Check wallet balance
+                temp = BigNumber.from(startETH);
+                temp = temp.sub(txResult.gasTotal);
+                temp = temp.sub(eth);
+
+                expect(temp.eq(newETH)).to.be.true;
+
+                // Check uETH balance
+                temp = BigNumber.from(newUETH);
+                temp = temp.sub(startUETH);
+
+                expect(temp.eq(ueth)).to.be.true;
+
+                // Switch amounts/wallets
+                amountIndex++;
+                if (amountIndex >= amounts.length) {
+                    amountIndex = 0;
+                }
+
+                walletIndex++;
+                if (walletIndex >= wallets.length) {
+                    walletIndex = 0;
+                }
+            }
+
+            // Withdraw remaining
+            for (let i = 0; i < wallets.length; i++) {
+                let balance = (await wallets[i].contract.balanceOf(wallets[i].address));
+                await KSink.waitWriteMethod(wallets[i].contract.withdraw(balance));
+            }
         });
 
     });
