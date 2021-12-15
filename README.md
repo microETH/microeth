@@ -1,43 +1,44 @@
 ```
-              ______________  __
-       __  __/ ____/_  __/ / / /
-      / / / / __/   / / / /_/ / 
-     / /_/ / /___  / / / __  /  
-    / ____/_____/ /_/ /_/ /_/   
-   /_/                          
+                                   _______________   __
+      ____ ___  __ _____________  / ____/__  __/ /  / /
+     / __  __ \/ / ___/ ___/ __ \/ __/    / / / /__/ /
+    / / / / / / / /__/ /  / /_/ / /___   / / / ___  /
+   /_/ /_/ /_/_/\___/_/   \____/_____/  /_/ /_/  /_/
 
 ```
 
-# μETH (microETH)
+# microETH (uETH)
 
 Official microETH ERC20 contract scripts.
 
 ## What is microETH?
 
-microETH (μETH) is a token representing a single micro unit of Ethereum. The goal of the microETH token project is to make Ethereum easier to use for those who suffer from the psychological effect known as "unit bias". The microETH token value will fluctuate with the price of Ethereum, but should always remain cheap enough that any human can afford to purchase whole units.
+microETH (uETH) is a token representing a single micro unit of Ethereum. The goal of the microETH token project is to make Ethereum easier to use for those who suffer from the psychological effect known as "unit bias". The microETH token value will fluctuate with the price of Ethereum, but should always remain cheap enough that any human can afford to purchase whole units.
 
 ### Conversion table
 
-| microETH      | ETH           | Gas (Gwei)        | Wei               | Scientific    |
-| ------------- | ------------- | -------------     | -------------     | ------------- |
-| 1 μETH        | 0.000001 ETH  | 1000 gwei         | 1000000000000 wei | 10^12         |
+| microETH token | SI units       | ETH            | Gas (Gwei)     | Wei               | Base 10        |
+| -------------- | -------------- | -------------- | -------------- | ----------------- | -------------- |
+| 1 uETH         | 1 µETH         | 0.000001 ETH   | 1000 gwei      | 1000000000000 wei | 10^12          |
 
-### μETH symbol
+### uETH symbol
 
-μETH uses ["GREEK SMALL LETTER MU" (U+03BC)](https://en.wikipedia.org/wiki/Mu_(letter)#Character_encodings) as its micro symbol.
+uETH (pronounced "you-eeth") is the symbol and nickname for microETH.
+
+It is meant to be synonymous "µETH", without the mixed language interoperability issues.  
 
 ## Contract interaction
 
 microETH is compatible with the [ERC20 standard](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/).
 
-Ethereum can be freely exchanged to microETH (μETH) tokens through contract interaction. For every 0.000001 ETH sent to microETH, the sender will receive 1 μETH token.
+Ethereum can be freely exchanged to microETH (uETH) tokens through contract interaction. For every 0.000001 ETH sent to microETH, the sender will receive 1 uETH token.
 
 ### Methods
 
 ```
 function deposit() external payable nonReentrant;
 ```
-> Exchanges ETH to μETH tokens. Requires a minimum of 0.000001 ETH to create a μETH token.
+> Exchanges ETH to uETH tokens. Requires a minimum of 0.000001 ETH to create a uETH token.
 
 
 ```
@@ -48,13 +49,13 @@ fallback();
 ```
 function withdraw(uint256 ueth) external nonReentrant
 ```
-> Exchanges μETH tokens to ETH. The exchanged ETH is sent to the caller. If more μETH tokens are requested than the caller account holds, the transaction will be reverted with an error.
+> Exchanges uETH tokens to ETH. The exchanged ETH is sent to the caller. If more uETH tokens are requested than the caller account holds, the transaction will be reverted with an error.
 
 ## Install
 
 The microETH development environment was built using [Hardhat](https://hardhat.org/) and NodeJS/NPM.
 
-It can be run natively on a system with NodeJS/NPM or inside of a sandboxed VM environment.
+It can run natively on a system with NodeJS/NPM or inside of a sandboxed VM environment.
 
 ### Native environment
 

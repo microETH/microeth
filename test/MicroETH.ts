@@ -11,7 +11,7 @@ import {
     uethToUETHToken,
     writeResultContainsEvent
 } from "./util/KSink";
-import { UETH_STRING, ChainID } from "./../scripts/microeth/Constants";
+import { ChainID } from "../scripts/microeth/Constants";
 
 let contractName = "MicroETH";
 
@@ -98,7 +98,7 @@ describe(contractName, function() {
             expect(supply.eq(0)).to.be.true;
         });
 
-        it("Should check that test wallet #1 contains no " + UETH_STRING, async function() {
+        it("Should check that test wallet #1 contains no uETH", async function() {
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -128,7 +128,7 @@ describe(contractName, function() {
             //    this.skip();
             //}
 
-            expect(await wallets[0].contract.symbol()).to.equal(UETH_STRING);
+            expect(await wallets[0].contract.symbol()).to.equal('uETH');
         });
 
         it("Decimal match", async function() {
@@ -147,7 +147,7 @@ describe(contractName, function() {
 
     describe("Basic token deposit and withdrawal", function() {
 
-        it("Should issue " + UETH_STRING + " tokens after sending ether to deposit()", async function() {
+        it("Should issue uETH tokens after sending ether to deposit()", async function() {
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -181,7 +181,7 @@ describe(contractName, function() {
             expect(temp.eq(ueth)).to.be.true;
         });
 
-        it("Should issue " + UETH_STRING + " tokens after sending ether to fallback()", async function() {
+        it("Should issue uETH tokens after sending ether to fallback()", async function() {
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -219,7 +219,7 @@ describe(contractName, function() {
             expect(temp.eq(ueth)).to.be.true;
         });
 
-        it("Should withdraw all " + UETH_STRING + " tokens and receive ether", async function() {
+        it("Should withdraw all uETH tokens and receive ether", async function() {
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -299,7 +299,7 @@ describe(contractName, function() {
 
     describe("Deposit revert cases", function() {
 
-        it("Should revert when deposit is less than 1 " + UETH_STRING, async function() {
+        it("Should revert when deposit is less than 1 uETH", async function() {
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -320,7 +320,7 @@ describe(contractName, function() {
 
                 await expect(
                     KSink.waitWriteMethod(txPromise)
-                ).to.be.revertedWith("Minimum deposit is 1 " + UETH_STRING + ".");
+                ).to.be.revertedWith("Minimum deposit is 1 uETH.");
             }
 
         });
@@ -363,7 +363,7 @@ describe(contractName, function() {
 
     describe("Transfers", function() {
 
-        it("Should transfer " + UETH_STRING + " tokens wallets and emit a Transfer event", async function() {
+        it("Should transfer uETH tokens wallets and emit a Transfer event", async function() {
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }

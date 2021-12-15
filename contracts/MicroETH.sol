@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-//              ______________  __
-//       __  __/ ____/_  __/ / / /
-//      / / / / __/   / / / /_/ /
-//     / /_/ / /___  / / / __  /
-//    / ____/_____/ /_/ /_/ /_/
-//   /_/
+//                                   _______________   __
+//      ____ ___  __ _____________  / ____/__  __/ /  / /
+//     / __  __ \/ / ___/ ___/ __ \/ __/    / / / /__/ /
+//    / / / / / / / /__/ /  / /_/ / /___   / / / ___  /
+//   /_/ /_/ /_/_/\___/_/   \____/_____/  /_/ /_/  /_/
 //
 
 pragma solidity ^0.8.9;
@@ -29,7 +28,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
     // External methods
     //
 
-    constructor() ERC20("microETH", "\xCE\xBCETH") {
+    constructor() ERC20("microETH", "uETH") {
         // ...
     }
 
@@ -47,7 +46,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
     function _deposit() private {
         if (msg.value < ONE_UETH_WEI) {
-            revert("Minimum deposit is 1 \xCE\xBCETH.");
+            revert("Minimum deposit is 1 uETH.");
         }
 
         // Mint tokens
@@ -58,7 +57,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
     function withdraw(uint256 ueth) external nonReentrant {
         if (ueth < ETH_CONVERSION) {
-            revert("Minimum withdrawal is 0.000000000001 \xCE\xBCETH.");
+            revert("Minimum withdrawal is 0.000000000001 uETH.");
         }
 
         uint256 balance = balanceOf(msg.sender);
