@@ -13,7 +13,7 @@ Official microETH ERC20 contract scripts.
 
 ## What is microETH?
 
-microETH (μETH) is a token representing a single micro unit of Ethereum. The goal of the microETH token project is to make Ethereum easier to use for those who suffer from the psychological effect known as "unit bias". microETH tokens are non-divisible and are always represented as whole units.
+microETH (μETH) is a token representing a single micro unit of Ethereum. The goal of the microETH token project is to make Ethereum easier to use for those who suffer from the psychological effect known as "unit bias". The microETH token value will fluctuate with the price of Ethereum, but should always remain cheap enough that any human can afford to purchase whole units.
 
 ### Conversion table
 
@@ -36,7 +36,7 @@ Ethereum can be freely exchanged to microETH (μETH) tokens through contract int
 ```
 function deposit() external payable nonReentrant;
 ```
-> Exchanges ETH to μETH tokens. Requires a minimum of 0.000001 ETH to create a μETH token. Fractional μETH tokens are not supported, any ETH remainder will be refunded to the sender.
+> Exchanges ETH to μETH tokens. Requires a minimum of 0.000001 ETH to create a μETH token.
 
 
 ```
@@ -96,11 +96,12 @@ Logoff/login or reboot.
 Cmd -> "whoami /priv". If successful, "SeCreateSymbolicLinkPrivilege" will appear in the list. It may show as "Disabled", but that's safe to ignore.
 ```
 
-## Deployment
+## Testing and deployment
 
 See `.env.example` for supported networks.
 
 Example (rinkeby):
 
-* Update `.env` with JSONRPC network configuration (`RINKEBY_URL`, `RINKEBY_PK`).
-* `npx hardhat run --network rinkeby scripts/deploy.ts`
+* Update `.env` with JSONRPC network configuration (`RINKEBY_URL`, `RINKEBY_PK`, `RINKEBY_TEST_CONTRACT`).
+* Test: `npx hardhat test --network rinkeby`
+* Deploy: `npx hardhat run --network rinkeby scripts/deploy.ts`
