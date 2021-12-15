@@ -48,6 +48,9 @@ module.exports = {
     hardhat: {
       // See its defaults
     }
+  },
+  mocha: {
+    timeout: 300000
   }
 }
 
@@ -56,7 +59,7 @@ if (process.env.hasOwnProperty('ROPSTEN_URL')) {
     url: process.env.ROPSTEN_URL,
     chainId: ChainID.Ropsten,
     accounts: [],
-    testContract: [ (process.env.hasOwnProperty('ROPSTEN_TEST_CONTRACT') ? process.env.ROPSTEN_TEST_CONTRACT : '') ],
+    testContract: (process.env.hasOwnProperty('ROPSTEN_TEST_CONTRACT') ? process.env.ROPSTEN_TEST_CONTRACT : '')
   }
 
   if (process.env.hasOwnProperty('ROPSTEN_PK') && process.env.ROPSTEN_PK !== undefined) {
@@ -69,7 +72,7 @@ if (process.env.hasOwnProperty('RINKEBY_URL')) {
     url: process.env.RINKEBY_URL,
     chainId: ChainID.Rinkeby,
     accounts:[],
-    testContract: [ (process.env.hasOwnProperty('RINKEBY_TEST_CONTRACT') ? process.env.RINKEBY_TEST_CONTRACT : '') ],
+    testContract: (process.env.hasOwnProperty('RINKEBY_TEST_CONTRACT') ? process.env.RINKEBY_TEST_CONTRACT : '')
   }
 
   if (process.env.hasOwnProperty('RINKEBY_PK') && process.env.RINKEBY_PK !== undefined) {

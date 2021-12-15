@@ -4,8 +4,14 @@ import * as hre from "hardhat";
 import { expect } from "chai";
 import {BigNumber, Signer} from "ethers";
 import * as KSink from "./util/KSink";
-import {TestWallet, uethTokenToWei, uethToUETHToken, writeResultContainsEvent} from "./util/KSink";
-import { ChainID } from "./../scripts/microeth/Constants";
+import {
+    etherToUETH,
+    TestWallet,
+    uethTokenToWei,
+    uethToUETHToken,
+    writeResultContainsEvent
+} from "./util/KSink";
+import { UETH_STRING, ChainID } from "./../scripts/microeth/Constants";
 
 let contractName = "MicroETH";
 
@@ -66,21 +72,14 @@ describe(contractName, function() {
                 throw new Error("Invalid test contract.");
             }
 
-            throw new Error("TODO: implement me!");
+            const contractFactory = await ethers.getContractFactory(contractName);
+            let contract = new ethers.Contract(contractAddress, contractFactory.interface, accounts[0]);
 
-            //new ethers.Contract(contractAddress, contractABI, wallet);
-
-            //const contractFactory = await ethers.getContractFactory(contractName);
-            //console.log(contractFactory);
-            //let contract = contractFactory.attach(contractAddress);
-
-            /*
             wallets.push({
                 wallet: accounts[0],
                 address: (await accounts[0].getAddress()),
-                contract: contract.connect(accounts[0])
+                contract: contract
             });
-             */
         }
     });
 
@@ -95,17 +94,17 @@ describe(contractName, function() {
                 this.skip();
             }
 
-            let supply = (await wallets[0].contract.totalSupply()).toNumber();
-            expect(supply).to.equal(0);
+            let supply = (await wallets[0].contract.totalSupply());
+            expect(supply).to.be.true;
         });
 
-        it("Should check that test wallet #1 contains no UETH", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+        it("Should check that test wallet #1 contains no " + UETH_STRING, async function() {
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
-            let ueth = (await wallets[0].contract.balanceOf(wallets[0].address)).toNumber();
-            expect(ueth).to.equal(0);
+            let ueth = (await wallets[0].contract.balanceOf(wallets[0].address));
+            expect(ueth.eq(0)).to.be.true;
         });
 
     });
@@ -117,25 +116,25 @@ describe(contractName, function() {
     describe("Metadata validation", function() {
 
         it("Name match", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
             expect(await wallets[0].contract.name()).to.equal("microETH");
         });
 
         it("Symbol match", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
-            expect(await wallets[0].contract.symbol()).to.equal("\u03BCETH");
+            expect(await wallets[0].contract.symbol()).to.equal(UETH_STRING);
         });
 
         it("Decimal match", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
             expect(await wallets[0].contract.decimals()).to.equal(18);
         });
@@ -148,13 +147,14 @@ describe(contractName, function() {
 
     describe("Basic token deposit and withdrawal", function() {
 
-        it("Should issue UETH tokens after sending ether to deposit()", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+        it("Should issue " + UETH_STRING + " tokens after sending ether to deposit()", async function() {
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
-            let eth = ethers.utils.parseEther("1.0");
-            let ueth = uethToUETHToken("1000000");
+            let ether = "0.0001"; // 100 μETH
+            let eth = ethers.utils.parseEther(ether);
+            let ueth = KSink.uethToUETHToken(KSink.etherToUETH(ether));
 
             let startETH = (await wallets[0].wallet.getBalance());
             let startUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
@@ -174,20 +174,21 @@ describe(contractName, function() {
 
             expect(temp.eq(newETH)).to.be.true;
 
-            // Check UETH balance
+            // Check μETH balance
             temp = BigNumber.from(newUETH);
             temp = temp.sub(startUETH);
 
             expect(temp.eq(ueth)).to.be.true;
         });
 
-        it("Should issue UETH tokens after sending ether to fallback()", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+        it("Should issue " + UETH_STRING + " tokens after sending ether to fallback()", async function() {
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
-            let eth = ethers.utils.parseEther("0.5");
-            let ueth = uethToUETHToken("500000");
+            let ether = "0.0002"; // 200 μETH
+            let eth = ethers.utils.parseEther(ether);
+            let ueth = KSink.uethToUETHToken(KSink.etherToUETH(ether));
 
             let startETH = (await wallets[0].wallet.getBalance());
             let startUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
@@ -211,17 +212,17 @@ describe(contractName, function() {
 
             expect(temp.eq(newETH)).to.be.true;
 
-            // Check UETH balance
+            // Check μETH balance
             temp = BigNumber.from(newUETH);
             temp = temp.sub(startUETH);
 
             expect(temp.eq(ueth)).to.be.true;
         });
 
-        it("Should withdraw all UETH tokens and receive ether", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+        it("Should withdraw all " + UETH_STRING + " tokens and receive ether", async function() {
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
             let startETH = (await wallets[0].wallet.getBalance());
             let startUETH = (await wallets[0].contract.balanceOf(wallets[0].address));
@@ -241,7 +242,7 @@ describe(contractName, function() {
 
             expect(temp.eq(newETH)).to.be.true;
 
-            // Check UETH balance
+            // Check μETH balance
             expect(startUETH.gt("0")).to.be.true;
             expect(newUETH.eq("0")).to.be.true;
         });
@@ -298,10 +299,10 @@ describe(contractName, function() {
 
     describe("Deposit revert cases", function() {
 
-        it("Should revert when deposit is less than 1 UETH", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+        it("Should revert when deposit is less than 1 " + UETH_STRING, async function() {
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
             let ethValues = [
                 "0.0000009",
@@ -319,7 +320,7 @@ describe(contractName, function() {
 
                 await expect(
                     KSink.waitWriteMethod(txPromise)
-                ).to.be.revertedWith("Minimum deposit is 1 \u03BCETH.");
+                ).to.be.revertedWith("Minimum deposit is 1 " + UETH_STRING + ".");
             }
 
         });
@@ -333,17 +334,19 @@ describe(contractName, function() {
     describe("Withdrawal revert cases", function() {
 
         it("Should revert on insufficient balance", async function() {
-            if (chainId != ChainID.Hardhat) {
-                this.skip();
-            }
+            //if (chainId != ChainID.Hardhat) {
+            //    this.skip();
+            //}
 
             // Deposit
-            let ueth = 1000000;
+            let ether = "0.0001"; // 100 μETH
+            let ueth = KSink.etherToUETH(ether);
+
             let tx = (await wallets[0].contract.deposit({value: KSink.uethToWei(ueth)}));
             let txResult = (await KSink.waitWriteMethod(tx));
 
             // Overdraw
-            let txPromise = wallets[0].contract.withdraw(uethToUETHToken(ueth + 1));
+            let txPromise = wallets[0].contract.withdraw(KSink.uethToUETHToken(ueth.add(1)));
             await expect(
                 KSink.waitWriteMethod(txPromise)
             ).to.be.revertedWith("Insufficient balance.");
@@ -360,7 +363,7 @@ describe(contractName, function() {
 
     describe("Transfers", function() {
 
-        it("Should transfer UETH tokens wallets and emit a Transfer event", async function() {
+        it("Should transfer " + UETH_STRING + " tokens wallets and emit a Transfer event", async function() {
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }

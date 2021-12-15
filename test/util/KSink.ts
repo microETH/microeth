@@ -1,5 +1,5 @@
 import {ethers} from "hardhat";
-import {BigNumber, BigNumberish, Signer, Contract} from 'ethers';
+import {BigNumber, BigNumberish, Signer, Contract} from "ethers";
 
 //
 // Interfaces
@@ -23,9 +23,11 @@ export interface WriteResult {
 export const waitWriteMethod = async function(tx: Promise<any>): Promise<WriteResult> {
     let txMined = (await (await tx).wait());
 
-    let cumulativeGasUsed = BigNumber.from(txMined.cumulativeGasUsed);
+    //let cumulativeGasUsed = BigNumber.from(txMined.cumulativeGasUsed);
+    let gasUsed = BigNumber.from(txMined.gasUsed);
     let effectiveGasPrice = BigNumber.from(txMined.effectiveGasPrice);
-    let gasTotal = cumulativeGasUsed.mul(effectiveGasPrice);
+    let gasTotal = gasUsed.mul(effectiveGasPrice);
+    //console.log(txMined);
 
     return {
         events: txMined.events,
@@ -44,18 +46,21 @@ export const writeResultContainsEvent = function(result: WriteResult, eventName:
     return false;
 }
 
-export const parseUETH = (ueth: string): BigNumber => {
-    return ethers.utils.parseUnits(ueth, 12);
+// Returns the number of whole μETH tokens in a given amount of Ether
+export const etherToUETH = (ether: string): BigNumber => {
+    let eth = ethers.utils.parseEther(ether);
+    let oneUETH = ethers.utils.parseEther("0.000001");
+    return eth.div(oneUETH);
 }
 
 export const uethToWei = (ueth: BigNumberish): BigNumber => {
-    return BigNumber.from(ueth).mul('1000000000000');
+    return BigNumber.from(ueth).mul("1000000000000");
 }
 
 export const uethTokenToWei = (ueth: BigNumberish): BigNumber => {
-    return BigNumber.from(ueth).div('1000000');
+    return BigNumber.from(ueth).div("1000000");
 }
 
 export const uethToUETHToken = (ueth: BigNumberish): BigNumber => {
-    return BigNumber.from(ueth).mul('1000000000000000000');
+    return BigNumber.from(ueth).mul("1000000000000000000");
 }
