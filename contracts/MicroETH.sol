@@ -10,9 +10,8 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MicroETH is ERC20, ReentrancyGuard {
+contract MicroETH is ERC20 {
 
     //
     // Definitions
@@ -26,7 +25,6 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
     error InvalidAmount();
     error LowBalance();
-    error TransferFail();
 
     //
     // External methods
@@ -36,7 +34,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
         // ...
     }
 
-    fallback() external payable nonReentrant {
+    fallback() external payable {
         _deposit();
     }
 
@@ -44,7 +42,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
     // External ether conversion methods
     //
 
-    function deposit() external payable nonReentrant {
+    function deposit() external payable {
         _deposit();
     }
 
@@ -59,7 +57,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
         emit Deposit(msg.sender, ueth);
     }
 
-    function withdraw(uint256 ueth) external nonReentrant {
+    function withdraw(uint256 ueth) external {
         if (ueth < ETH_CONVERSION) {
             revert InvalidAmount();
         }
@@ -74,11 +72,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
         // Send ether
         uint256 value = ueth / ETH_CONVERSION;
-        (bool sent,) = msg.sender.call{value: value}("");
-        if (!sent) {
-            revert TransferFail();
-        }
-
+        payable(msg.sender).transfer(value);
         emit Withdrawal(msg.sender, ueth);
     }
 
