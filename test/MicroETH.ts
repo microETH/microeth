@@ -320,7 +320,7 @@ describe(contractName, function() {
 
                 await expect(
                     KSink.waitWriteMethod(txPromise)
-                ).to.be.revertedWith("Minimum deposit is 1 uETH.");
+                ).to.be.revertedWith("InvalidAmount()");
             }
 
         });
@@ -349,7 +349,7 @@ describe(contractName, function() {
             let txPromise = wallets[0].contract.withdraw(KSink.uethToUETHToken(ueth.add(1)));
             await expect(
                 KSink.waitWriteMethod(txPromise)
-            ).to.be.revertedWith("Insufficient balance.");
+            ).to.be.revertedWith("LowBalance()");
 
             // Withdraw remaining
             await KSink.waitWriteMethod(wallets[0].contract.withdraw(uethToUETHToken(ueth)));

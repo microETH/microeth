@@ -24,6 +24,10 @@ contract MicroETH is ERC20, ReentrancyGuard {
     event Deposit(address indexed from, uint256 value);
     event Withdrawal(address indexed to, uint256 value);
 
+    error InvalidAmount();
+    error LowBalance();
+    error TransferFail();
+
     //
     // External methods
     //
@@ -46,7 +50,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
     function _deposit() private {
         if (msg.value < ONE_UETH_WEI) {
-            revert("Minimum deposit is 1 uETH.");
+            revert InvalidAmount();
         }
 
         // Mint tokens
@@ -57,12 +61,12 @@ contract MicroETH is ERC20, ReentrancyGuard {
 
     function withdraw(uint256 ueth) external nonReentrant {
         if (ueth < ETH_CONVERSION) {
-            revert("Minimum withdrawal is 0.000000000001 uETH.");
+            revert InvalidAmount();
         }
 
         uint256 balance = balanceOf(msg.sender);
         if (ueth > balance) {
-            revert("Insufficient balance.");
+            revert LowBalance();
         }
 
         // Burn tokens
@@ -72,7 +76,7 @@ contract MicroETH is ERC20, ReentrancyGuard {
         uint256 value = ueth / ETH_CONVERSION;
         (bool sent,) = msg.sender.call{value: value}("");
         if (!sent) {
-            revert("Failed to withdraw.");
+            revert TransferFail();
         }
 
         emit Withdrawal(msg.sender, ueth);
