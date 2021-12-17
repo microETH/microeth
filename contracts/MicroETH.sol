@@ -10,8 +10,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 
-contract MicroETH is ERC20 {
+contract MicroETH is ERC20, ERC20Permit {
 
     //
     // Definitions
@@ -30,7 +31,7 @@ contract MicroETH is ERC20 {
     // External methods
     //
 
-    constructor() ERC20("microETH", "uETH") {
+    constructor() ERC20("microETH", "uETH") ERC20Permit("microETH") {
         // ...
     }
 

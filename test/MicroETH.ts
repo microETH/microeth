@@ -12,8 +12,10 @@ import {
     writeResultContainsEvent
 } from "./util/KSink";
 import { ChainID } from "../scripts/microeth/Constants";
+import { signERC2612Permit } from "eth-permit";
 
 let contractName = "MicroETH";
+let debug = false;
 
 describe(contractName, function() {
 
@@ -90,6 +92,9 @@ describe(contractName, function() {
     describe("Initial contract and local wallet states", function() {
 
         it("Should verify that there is no initial supply", async function() {
+            if (debug) {
+                this.skip();
+            }
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }
@@ -99,6 +104,9 @@ describe(contractName, function() {
         });
 
         it("Should check that test wallet #1 contains no uETH", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -116,6 +124,9 @@ describe(contractName, function() {
     describe("Metadata validation", function() {
 
         it("Name match", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -124,6 +135,9 @@ describe(contractName, function() {
         });
 
         it("Symbol match", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -132,6 +146,9 @@ describe(contractName, function() {
         });
 
         it("Decimal match", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -148,6 +165,9 @@ describe(contractName, function() {
     describe("Basic token deposit and withdrawal", function() {
 
         it("Should issue uETH tokens after sending ether to deposit()", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -182,6 +202,9 @@ describe(contractName, function() {
         });
 
         it("Should issue uETH tokens after sending ether to fallback()", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -220,6 +243,9 @@ describe(contractName, function() {
         });
 
         it("Should withdraw all uETH tokens and receive ether", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -248,6 +274,9 @@ describe(contractName, function() {
         });
 
         it("Should validate that total supply matches minted tokens", async function() {
+            if (debug) {
+                this.skip();
+            }
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }
@@ -300,6 +329,9 @@ describe(contractName, function() {
     describe("Deposit revert cases", function() {
 
         it("Should revert when deposit is less than 1 uETH", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -334,6 +366,9 @@ describe(contractName, function() {
     describe("Withdrawal revert cases", function() {
 
         it("Should revert on insufficient balance", async function() {
+            if (debug) {
+                this.skip();
+            }
             //if (chainId != ChainID.Hardhat) {
             //    this.skip();
             //}
@@ -364,6 +399,9 @@ describe(contractName, function() {
     describe("Transfers", function() {
 
         it("Should transfer uETH tokens wallets and emit a Transfer event", async function() {
+            if (debug) {
+                this.skip();
+            }
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }
@@ -406,6 +444,9 @@ describe(contractName, function() {
         });
 
         it("Should error when transferring tokens to the zero address", async function() {
+            if (debug) {
+                this.skip();
+            }
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }
@@ -437,6 +478,9 @@ describe(contractName, function() {
         });
 
         it("Should allow a spending allowance on another account", async function() {
+            if (debug) {
+                this.skip();
+            }
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }
@@ -497,6 +541,75 @@ describe(contractName, function() {
             await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
             await KSink.waitWriteMethod(wallets[2].contract.withdraw(balance2));
         });
+        
+        it("Should allow a spending allowance on another account from an EIP2612 pre-signed transaction", async function() {
+            //if (debug) {
+            //    this.skip();
+            //}
+            if (chainId != ChainID.Hardhat) {
+                this.skip();
+            }
+
+            let eth = ethers.utils.parseEther("0.1");
+            let ueth = KSink.uethToUETHToken("100000");
+            let transferUETH = KSink.uethToUETHToken("1");
+
+            // Sign a permit from wallet 1 -> wallet 2
+            let contractAddress = wallets[1].contract.address;
+            let deadline = Math.round(Date.now() / 1000) + (3600);
+            let signedPermit = await signERC2612Permit(wallets[1].wallet.provider, contractAddress, wallets[1].address, wallets[2].address, transferUETH.toString(), deadline);
+
+            // Check initial balances
+            let balance1 = BigNumber.from("0");
+            let balance2 = BigNumber.from("0");
+            let allowance = BigNumber.from("0");
+
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq("0")).to.be.true;
+
+            balance2 = (await wallets[2].contract.balanceOf(wallets[2].address));
+            expect(balance2.eq("0")).to.be.true;
+
+            // Deposit to wallet 1
+            let tx = (await wallets[1].contract.deposit({value: eth}));
+            let txResult = (await KSink.waitWriteMethod(tx));
+
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq(ueth)).to.be.true;
+
+            // Try to spend from a disallowed peer account
+            await expect(
+                wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, transferUETH)
+            ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+
+            // Ask peer to check allowance
+            allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
+            expect(allowance.eq("0")).to.be.true;
+
+            // Ask peer to permit allowance
+            await wallets[2].contract.permit(signedPermit.owner, signedPermit.spender, signedPermit.value, signedPermit.deadline, signedPermit.v, signedPermit.r, signedPermit.s);
+
+            // Ask peer to check allowance
+            allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
+            expect(allowance.eq(transferUETH)).to.be.true;
+
+            // Ask peer to transfer tokens
+            wallets[2].contract.transferFrom(wallets[1].address, wallets[2].address, transferUETH)
+
+            allowance = (await wallets[2].contract.allowance(wallets[1].address, wallets[2].address));
+            expect(allowance.eq("0")).to.be.true;
+
+            // Check token balances
+            balance1 = (await wallets[1].contract.balanceOf(wallets[1].address));
+            expect(balance1.eq(ueth.sub(transferUETH))).to.be.true;
+
+            balance2 = (await wallets[2].contract.balanceOf(wallets[2].address));
+            expect(balance2.eq(transferUETH)).to.be.true;
+
+            // Withdraw remaining
+            await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
+            await KSink.waitWriteMethod(wallets[2].contract.withdraw(balance2));
+        });
 
     });
 
@@ -507,6 +620,9 @@ describe(contractName, function() {
     describe("Stress testing", function() {
 
         it("Verify that contract balances are correct after 1000 mixed transactions", async function() {
+            if (debug) {
+                this.skip();
+            }
             if (chainId != ChainID.Hardhat) {
                 this.skip();
             }
