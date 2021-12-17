@@ -541,7 +541,7 @@ describe(contractName, function() {
             await KSink.waitWriteMethod(wallets[1].contract.withdraw(balance1));
             await KSink.waitWriteMethod(wallets[2].contract.withdraw(balance2));
         });
-        
+
         it("Should allow a spending allowance on another account from an EIP2612 pre-signed transaction", async function() {
             //if (debug) {
             //    this.skip();
