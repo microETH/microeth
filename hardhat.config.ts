@@ -79,3 +79,16 @@ if (process.env.hasOwnProperty('RINKEBY_URL')) {
     module.exports.networks.rinkeby.accounts = process.env.RINKEBY_PK.split(',');
   }
 }
+
+if (process.env.hasOwnProperty('MAINNET_URL')) {
+  module.exports.networks.mainnet = {
+    url: process.env.MAINNET_URL,
+    chainId: ChainID.Mainnet,
+    accounts:[],
+    testContract: (process.env.hasOwnProperty('MAINNET_TEST_CONTRACT') ? process.env.MAINNET_TEST_CONTRACT : '')
+  }
+
+  if (process.env.hasOwnProperty('MAINNET_PK') && process.env.MAINNET_PK !== undefined) {
+    module.exports.networks.mainnet.accounts = process.env.MAINNET_PK.split(',');
+  }
+}
