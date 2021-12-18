@@ -384,7 +384,7 @@ describe(contractName, function() {
             let txPromise = wallets[0].contract.withdraw(KSink.uethToUETHToken(ueth.add(1)));
             await expect(
                 KSink.waitWriteMethod(txPromise)
-            ).to.be.revertedWith("LowBalance()");
+            ).to.be.revertedWith("ERC20: burn amount exceeds balance");
 
             // Withdraw remaining
             await KSink.waitWriteMethod(wallets[0].contract.withdraw(uethToUETHToken(ueth)));

@@ -25,7 +25,6 @@ contract MicroETH is ERC20, ERC20Permit {
     event Withdrawal(address indexed to, uint256 value);
 
     error InvalidAmount();
-    error LowBalance();
 
     //
     // External methods
@@ -61,11 +60,6 @@ contract MicroETH is ERC20, ERC20Permit {
     function withdraw(uint256 ueth) external {
         if (ueth < ETH_CONVERSION) {
             revert InvalidAmount();
-        }
-
-        uint256 balance = balanceOf(msg.sender);
-        if (ueth > balance) {
-            revert LowBalance();
         }
 
         // Burn tokens
